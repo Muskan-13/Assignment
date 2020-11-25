@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                        Date curDate=sdf.parse(cDate);
                        Date rDate= sdf.parse(dt);
                        String btn="";
-                       if(curDate.compareTo(rDate)>= 0)
+                       if(curDate.compareTo(rDate)> 0)
                        {
                            btn+="SOLUTION";
                        }
