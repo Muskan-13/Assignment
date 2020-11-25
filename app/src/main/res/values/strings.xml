@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Static Design</string>
+    <string name="assessments">Assessments</string>
+    <string name="practice_for_full_exam_test">Practice for full exam test</string>
+    <string name="practice_for_full_test_to_prepare_yourself_for_future_exams">Practice for full test to prepare yourself for future exams</string>
+    <string name="description">Description</string>
 </resources>

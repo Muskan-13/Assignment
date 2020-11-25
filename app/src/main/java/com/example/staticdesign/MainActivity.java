@@ -1,6 +1,9 @@
 package com.example.staticdesign;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,75 +17,33 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<String> title= new ArrayList<>();
-    ArrayList<String> date= new ArrayList<>();
-    ArrayList<Integer> time= new ArrayList<>();
-    ArrayList<String> description= new ArrayList<>();
+    RecyclerView recyclerView;
+    TestAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        get_json();
-        TextView desc=(TextView)findViewById(R.id.desc0);
-        desc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), description.get(0), Toast.LENGTH_SHORT).show();
-            }
-        });
-        TextView desc1=(TextView)findViewById(R.id.desc1);
-        desc1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), description.get(1), Toast.LENGTH_SHORT).show();
-            }
-        });
-        TextView desc2=(TextView)findViewById(R.id.desc2);
-        desc2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), description.get(2), Toast.LENGTH_SHORT).show();
-            }
-        });
 
-        TextView t=(TextView) findViewById(R.id.title0);
-        t.setText(title.get(0));
-        TextView t1=(TextView) findViewById(R.id.title1);
-        t1.setText(title.get(1));
-        TextView t2=(TextView) findViewById(R.id.title2);
-        t2.setText(title.get(2));
+        recyclerView=(RecyclerView)findViewById(R.id.view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        TextView d=(TextView) findViewById(R.id.date0);
-        d.setText(date.get(0));
-        TextView d1=(TextView) findViewById(R.id.date1);
-        d1.setText(date.get(1));
-        TextView d2=(TextView) findViewById(R.id.date2);
-        d2.setText(date.get(2));
-
-        String txt;
-        TextView tm=(TextView) findViewById(R.id.time0);
-        txt=time.get(0)+" min";
-        tm.setText(txt);
-        TextView tm1=(TextView) findViewById(R.id.time1);
-        txt=time.get(1)+" min";
-        tm1.setText(txt);
-        TextView tm2=(TextView) findViewById(R.id.time2);
-        txt=time.get(2)+" min";
-        tm2.setText(txt);
-
-        String curDate= new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
+        adapter=new TestAdapter(get_json());
+        recyclerView.setAdapter(adapter);
     }
 
-   public void get_json()
+   public ArrayList<Model> get_json()
    {
+       ArrayList<Model> holder= new ArrayList<>();
        String json=null;
        try {
            InputStream inp= getAssets().open("data.json");
@@ -97,17 +58,39 @@ public class MainActivity extends AppCompatActivity {
                for (int i = 0; i < jsonArray.length(); i++) {
                    JSONObject obj = jsonArray.getJSONObject(i);
                    if (obj != null) {
-                       title.add(obj.getString("assessment_name"));
-                       date.add(obj.getString("attempt_date"));
-                       time.add((obj.getInt("test_duration"))/60);
-                       description.add(obj.getString("description"));
+                       String t=obj.getString("assessment_name");
+                       String dt=obj.getString("attempt_date");
+                       String tm=((obj.getInt("test_duration"))/60)+" min";
+                       String ds=obj.getString("description");
+                       Calendar c=Calendar.getInstance();
+                       SimpleDateFormat sdf=new SimpleDateFormat("MMM dd, yyyy");
+                       String cDate=sdf.format(c.getTime());
+                       Date curDate=sdf.parse(cDate);
+                       Date rDate= sdf.parse(dt);
+                       String btn="";
+                       if(curDate.compareTo(rDate)>= 0)
+                       {
+                           btn+="SOLUTION";
+                       }
+                       else
+                       {
+                           btn+="START";
+                       }
+                       Model object=new Model(t,dt,tm,ds,btn);
+                       object.setTitle(t);
+                       object.setDate(dt);
+                       object.setTime(tm);
+                       object.setDesc(ds);
+                       object.setBtntxt(btn);
+                       holder.add(object);
                    }
                }
            }
 
-       } catch (IOException | JSONException e) {
+       } catch (IOException | JSONException | ParseException e) {
            e.printStackTrace();
        }
+       return holder;
    }
 
 
